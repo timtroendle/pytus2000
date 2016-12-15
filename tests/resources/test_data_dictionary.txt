@@ -1,0 +1,42 @@
+UK Data Archive Data Dictionary
+
+File-level information:
+
+File Name = 		_data_8
+
+Number of variables = 	6
+
+Number of cases = 	20981
+
+Variable-level information:
+
+Pos. = 1	Variable = v1	Variable label = variable label 1
+
+This variable is  numeric, the SPSS measurement level is scale.
+
+Pos. = 2	Variable = v2	Variable label = variable label 2
+
+This variable is  numeric, the SPSS measurement level is scale.
+
+Pos. = 3	Variable = v3	Variable label = variable label 3
+
+This variable is  numeric, the SPSS measurement level is ordinal.
+
+Value label information for v3
+
+Value = 0	Label = label1
+
+Value = 1	Label = label2
+
+Value = 2	Label = label3
+
+Pos. = 4	Variable = v4	Variable label = variable label 4
+
+This variable is  numeric, the SPSS measurement level is ordinal.
+
+Value label information for v4
+
+Value = 2.2	Label = some label
+
+Value = 2.3	Label = some other label
+
