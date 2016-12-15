@@ -1,6 +1,6 @@
 # PyTUS2000
 
-A library for working with the UK Time Use Study 2000 data.
+A library for working with the [UK Time Use Study 2000](https://discover.ukdataservice.ac.uk/catalogue?sn=4504) data.
 
 ## Developer Guide
 
