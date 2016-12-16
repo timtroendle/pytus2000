@@ -1,3 +1,8 @@
+"""The functions in this module generate Python code from data dictionaries.
+
+This file is not intended to be used by user of pytus2000, instead it creates
+large parts of pytus2000 code automatically.
+"""
 from collections import namedtuple, OrderedDict
 from itertools import dropwhile, groupby
 from pathlib import Path
@@ -15,25 +20,45 @@ VALUE_LABEL_FIELD = 'Label = '
 Variable = namedtuple('Variable', ['id', 'name', 'label', 'values'])
 
 
-class PathlibParamType(click.ParamType):
-    name = 'Path'
+class _PathToPlainTextParamType(click.ParamType):
+    name = 'PathToPlainText'
 
     def convert(self, value, param, ctx):
         path = Path(value)
         if not path.exists():
             self.fail('Path "{}" does not exist.'.format(value))
+        if path.suffix == '.rtf':
+            self.fail('rtf files cannot be read. Please convert to plain text first.')
         return path
 
 
 @click.command(name='datadict-translator')
-@click.argument('datadict', type=PathlibParamType())
+@click.argument('datadict', type=_PathToPlainTextParamType())
 def generate_code(datadict):
+    """Generates PyTUS2000 source code.
+
+    \b
+    Parameters:
+        datadict:  The file containing the data dictionary to be translated.
+                   Must be in plain text; rtf will fail.
+    """
     PATH_FOR_GENERATED_CODE.mkdir(exist_ok=True)
     variables = parse_data_dictionary(datadict)
     write_data_dictionary(variables, PATH_FOR_GENERATED_CODE / 'datadict.py')
 
 
 def parse_data_dictionary(path_to_file):
+    """Parses a data dictionary file from the study.
+
+    This function can't handle with the rtf files as provided in the study. They have to
+    be converted to plain text before.
+
+    Parameters:
+        * path_to_file: a pathlib.Path to the file to be parsed; must be plain text
+
+    Returns:
+        all variables found in the data dictionary
+    """
     with path_to_file.open('r') as txt_file:
         lines = txt_file.readlines()
     lines = filter(lambda line: line is not '\n', lines)
@@ -46,6 +71,12 @@ def parse_data_dictionary(path_to_file):
 
 
 def write_data_dictionary(variables, path_to_file):
+    """Writes data dictionary variables to Python source code.
+
+    Parameters:
+        * variables: all variables to be written
+        * path_to_file: a pathlib.Path to the file to be written.
+    """
     lines = [
         '"""This is a auto-generated data dictionary file of the UK Time Use Study 2000."""',
         'from enum import Enum',
