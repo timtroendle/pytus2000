@@ -7,6 +7,7 @@ class Variable(Enum):
     V2 = 2
     V3 = 3
     V4 = 4
+    V5 = 5
 
 
 class V3Values(Enum):
@@ -18,3 +19,6 @@ class V3Values(Enum):
 class V4Values(Enum):
     SOME_LABEL = '2.2'
     SOME_OTHER_LABEL = '2.3'
+
+
+V5Values = V3Values

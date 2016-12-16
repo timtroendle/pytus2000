@@ -55,12 +55,21 @@ def write_data_dictionary(variables, path_to_file):
     ]
     for i, variable in enumerate(variables):
         lines.append('    {} = {}'.format(variable.name.upper(), i + 1))
+    variable_cache = []
     for variable in filter(_variable_has_values, variables):
         lines.append('')
         lines.append('')
-        lines.append('class {}Values(Enum):'.format(_convert_name(variable.name)))
-        for value, label in variable.values.items():
-            lines.append("    {} = '{}'".format(_convert_name(label.upper()), value))
+        if len(_variables_with_same_value(variable_cache)(variable)) == 0:
+            lines.append('class {}Values(Enum):'.format(_convert_name(variable.name)))
+            for value, label in variable.values.items():
+                lines.append("    {} = '{}'".format(_convert_name(label.upper()), value))
+            variable_cache.append(variable)
+        else:
+            variable_with_same_values = _variables_with_same_value(variable_cache)(variable)[0]
+            lines.append('{}Values = {}Values'.format(
+                _convert_name(variable.name),
+                _convert_name(variable_with_same_values.name))
+            )
     lines = (line + '\n' for line in lines)
     with path_to_file.open('w') as f1:
         f1.writelines(lines)
@@ -98,6 +107,12 @@ def _variable_section_generator(lines):
 
 def _variable_has_values(variable):
     return variable.values is not None
+
+
+def _variables_with_same_value(reference_variables):
+    def _variables_with_same_value(variable):
+        return [var for var in reference_variables if var.values == variable.values]
+    return _variables_with_same_value
 
 
 def _convert_name(name):

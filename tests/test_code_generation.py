@@ -17,7 +17,7 @@ class TestsParsingTestDataDictionary():
 
     def test_detects_all_variables(self):
         variables = parse_data_dictionary(PATH_TO_TEST_DATA_DICTIONARY)
-        assert len(variables) == 4
+        assert len(variables) == 5
 
     def test_detects_first_variable(self):
         variables = parse_data_dictionary(PATH_TO_TEST_DATA_DICTIONARY)

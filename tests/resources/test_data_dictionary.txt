@@ -40,3 +40,14 @@ Value = 2.2	Label = some label
 
 Value = 2.3	Label = some other label
 
+Pos. = 5	Variable = v5	Variable label = variable label 5
+
+This variable is  numeric, the SPSS measurement level is ordinal.
+
+Value label information for v3
+
+Value = 0	Label = label1
+
+Value = 1	Label = label2
+
+Value = 2	Label = label3
