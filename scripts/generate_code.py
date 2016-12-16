@@ -37,14 +37,11 @@ class DataDictionaryParser():
 
     @staticmethod
     def _parse_variable_values(value_lines):
-        value_lines_split = (line.split('\t') for line in value_lines)
         values = {
-            value.split(VALUE_FIELD)[1]: label.split(VALUE_LABEL_FIELD)[1] for value, label in value_lines_split
+            value.split(VALUE_FIELD)[1]: label.split(VALUE_LABEL_FIELD)[1]
+            for value, label in (line.split('\t') for line in value_lines)
         }
-        if len(values) == 0:
-            return None
-        else:
-            return values
+        return values if len(values) > 0 else None
 
     @staticmethod
     def _variable_section_generator(lines):
