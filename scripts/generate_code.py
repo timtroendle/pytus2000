@@ -1,4 +1,4 @@
-from collections import namedtuple
+from collections import namedtuple, OrderedDict
 from itertools import dropwhile, groupby
 
 VARIABLE_SECTION_START = 'Pos. = '
@@ -37,11 +37,11 @@ class DataDictionaryParser():
 
     @staticmethod
     def _parse_variable_values(value_lines):
-        values = {
-            value.split(VALUE_FIELD)[1]: label.split(VALUE_LABEL_FIELD)[1]
+        values = [
+            (value.split(VALUE_FIELD)[1], label.split(VALUE_LABEL_FIELD)[1])
             for value, label in (line.split('\t') for line in value_lines)
-        }
-        return values if len(values) > 0 else None
+        ]
+        return OrderedDict(values) if len(values) > 0 else None
 
     @staticmethod
     def _variable_section_generator(lines):
@@ -52,3 +52,32 @@ class DataDictionaryParser():
                 variable_section = []
             variable_section.append(line)
         yield variable_section
+
+
+def write_data_dictionary(variables, path_to_file):
+    lines = [
+        '"""This is a auto-generated data dictionary file of the UK Time Use Study 2000."""',
+        'from enum import Enum',
+        '',
+        '',
+        'class Variable(Enum):'
+    ]
+    for i, variable in enumerate(variables):
+        lines.append('    {} = {}'.format(variable.name.upper(), i + 1))
+    for variable in filter(_variable_has_values, variables):
+        lines.append('')
+        lines.append('')
+        lines.append('class {}Values(Enum):'.format(_convert_name(variable.name)))
+        for value, label in variable.values.items():
+            lines.append("    {} = '{}'".format(_convert_name(label.upper()), value))
+    lines = (line + '\n' for line in lines)
+    with path_to_file.open('w') as f1:
+        f1.writelines(lines)
+
+
+def _variable_has_values(variable):
+    return variable.values is not None
+
+
+def _convert_name(name):
+    return name.upper().replace(' ', '_')
