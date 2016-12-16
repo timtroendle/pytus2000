@@ -5,7 +5,7 @@ import os
 import pytest
 
 sys.path.append('./scripts/')
-from generate_code import DataDictionaryParser, Variable, write_data_dictionary
+from generate_code import Variable, parse_data_dictionary, write_data_dictionary
 
 PATH_TO_RESOURCES = Path(os.path.abspath(__file__)).parent / 'resources'
 PATH_TO_TEST_DATA_DICTIONARY = PATH_TO_RESOURCES / 'test_data_dictionary.txt'
@@ -13,31 +13,25 @@ PATH_TO_ORIGINAL_DATA_DICTIONARY = PATH_TO_RESOURCES / 'orig_data_dictionary.txt
 PATH_TO_EXPECTED_TEST_DATA_DICTIONARY = PATH_TO_RESOURCES / 'resulting_datadicts.py'
 
 
-@pytest.fixture
-def parser():
-    return DataDictionaryParser(PATH_TO_TEST_DATA_DICTIONARY)
-
-
-@pytest.fixture
-def original_file_parser():
-    return DataDictionaryParser(PATH_TO_ORIGINAL_DATA_DICTIONARY)
-
-
 class TestsParsingTestDataDictionary():
 
-    def test_detects_all_variables(self, parser):
-        assert len(parser.variables) == 4
+    def test_detects_all_variables(self):
+        variables = parse_data_dictionary(PATH_TO_TEST_DATA_DICTIONARY)
+        assert len(variables) == 4
 
-    def test_detects_first_variable(self, parser):
-        assert parser.variables[0] == Variable(id=1, name='v1', label='variable label 1',
-                                               values=None)
+    def test_detects_first_variable(self):
+        variables = parse_data_dictionary(PATH_TO_TEST_DATA_DICTIONARY)
+        assert variables[0] == Variable(id=1, name='v1', label='variable label 1',
+                                        values=None)
 
-    def test_detects_second_variable(self, parser):
-        assert parser.variables[1] == Variable(id=2, name='v2', label='variable label 2',
-                                               values=None)
+    def test_detects_second_variable(self):
+        variables = parse_data_dictionary(PATH_TO_TEST_DATA_DICTIONARY)
+        assert variables[1] == Variable(id=2, name='v2', label='variable label 2',
+                                        values=None)
 
-    def test_detects_third_variable(self, parser):
-        assert parser.variables[2] == Variable(
+    def test_detects_third_variable(self):
+        variables = parse_data_dictionary(PATH_TO_TEST_DATA_DICTIONARY)
+        assert variables[2] == Variable(
             id=3,
             name='v3',
             label='variable label 3',
@@ -48,8 +42,9 @@ class TestsParsingTestDataDictionary():
             }
         )
 
-    def test_detects_forth_variable(self, parser):
-        assert parser.variables[3] == Variable(
+    def test_detects_forth_variable(self):
+        variables = parse_data_dictionary(PATH_TO_TEST_DATA_DICTIONARY)
+        assert variables[3] == Variable(
             id=4,
             name='v4',
             label='variable label 4',
@@ -66,17 +61,18 @@ class TestsParsingTestDataDictionary():
 )
 class TestsParsingOriginalDataDictionary():
 
-    def test_detects_all_variables_in_original(self, original_file_parser):
-        assert len(original_file_parser.variables) == 3164
+    def test_detects_all_variables_in_original(self):
+        variables = parse_data_dictionary(PATH_TO_ORIGINAL_DATA_DICTIONARY)
+        assert len(variables) == 3164
 
 
 class TestGeneratingPythonDatadicts():
 
-    def test_creates_data_dict_correctly(self, tmpdir, parser):
+    def test_creates_data_dict_correctly(self, tmpdir):
         tmpdir_path = Path(str(tmpdir))
         path_to_file = tmpdir_path / 'generated_file.py'
         write_data_dictionary(
-            variables=parser.variables,
+            variables=parse_data_dictionary(PATH_TO_TEST_DATA_DICTIONARY),
             path_to_file=path_to_file
         )
         self.assert_equal_files(path_to_file, PATH_TO_EXPECTED_TEST_DATA_DICTIONARY)
