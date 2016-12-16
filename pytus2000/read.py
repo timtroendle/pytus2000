@@ -7,7 +7,6 @@ def read_diary_file(path_to_file):
     return pd.read_csv(
         path_to_file,
         delimiter='\t',
-        nrows=50,
         converters=_column_name_to_type_mapping(diary),
         low_memory=False # some columns seem to have mixed types
     )
@@ -29,5 +28,11 @@ def _enum_converter(enumcls):
         if value == ' ':
             return None
         else:
-            return enumcls(value)
+            try:
+                value = enumcls(value)
+            except ValueError as ve:
+                print(ve)
+                return None
+            else:
+                return value
     return enum_converter
