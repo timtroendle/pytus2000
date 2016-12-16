@@ -11,7 +11,7 @@ setup(
     maintainer='Tim Tröndle',
     maintainer_email='tt397@cam.ac.uk',
     url='https://www.github.com/timtroendle/pytus2000',
-    packages=find_packages(exclude=['tests*']),
+    packages=find_packages(exclude=['tests*', 'scripts*']),
     include_package_data=True,
     install_requires=[],
     classifiers=[
