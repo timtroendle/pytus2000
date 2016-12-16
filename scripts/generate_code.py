@@ -60,13 +60,13 @@ def write_data_dictionary(variables, path_to_file):
         lines.append('')
         lines.append('')
         if len(_variables_with_same_value(variable_cache)(variable)) == 0:
-            lines.append('class {}Values(Enum):'.format(_convert_name(variable.name)))
+            lines.append('class {}(Enum):'.format(_convert_name(variable.name)))
             for value, label in variable.values.items():
                 lines.append("    {} = '{}'".format(_convert_name(label.upper()), value))
             variable_cache.append(variable)
         else:
             variable_with_same_values = _variables_with_same_value(variable_cache)(variable)[0]
-            lines.append('{}Values = {}Values'.format(
+            lines.append('{} = {}'.format(
                 _convert_name(variable.name),
                 _convert_name(variable_with_same_values.name))
             )

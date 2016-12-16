@@ -10,15 +10,15 @@ class Variable(Enum):
     V5 = 5
 
 
-class V3Values(Enum):
+class V3(Enum):
     LABEL1 = '0'
     LABEL2 = '1'
     LABEL3 = '2'
 
 
-class V4Values(Enum):
+class V4(Enum):
     SOME_LABEL = '2.2'
     SOME_OTHER_LABEL = '2.3'
 
 
-V5Values = V3Values
+V5 = V3
