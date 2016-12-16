@@ -17,7 +17,7 @@ class TestsParsingTestDataDictionary():
 
     def test_detects_all_variables(self):
         variables = parse_data_dictionary(PATH_TO_TEST_DATA_DICTIONARY)
-        assert len(variables) == 5
+        assert len(variables) == 6
 
     def test_detects_first_variable(self):
         variables = parse_data_dictionary(PATH_TO_TEST_DATA_DICTIONARY)
@@ -26,7 +26,7 @@ class TestsParsingTestDataDictionary():
 
     def test_detects_second_variable(self):
         variables = parse_data_dictionary(PATH_TO_TEST_DATA_DICTIONARY)
-        assert variables[1] == Variable(id=2, name='v2', label='variable label 2',
+        assert variables[1] == Variable(id=2, name='@v2', label='variable label 2',
                                         values=None)
 
     def test_detects_third_variable(self):
@@ -49,8 +49,36 @@ class TestsParsingTestDataDictionary():
             name='v4',
             label='variable label 4',
             values={
-                '2.2': 'some label',
-                '2.3': 'some other label'
+                '1.1': 'label',
+                '2.2': '@some label',
+                '2.3': '1some other label',
+                '2.4': '@some label'
+            }
+        )
+
+    def test_detects_fifth_variable(self):
+        variables = parse_data_dictionary(PATH_TO_TEST_DATA_DICTIONARY)
+        assert variables[4] == Variable(
+            id=5,
+            name='v5',
+            label='variable label 5',
+            values={
+                '0': 'label1',
+                '1': 'label2',
+                '2': 'label3'
+            }
+        )
+
+    def test_detects_sixth_variable(self):
+        variables = parse_data_dictionary(PATH_TO_TEST_DATA_DICTIONARY)
+        assert variables[5] == Variable(
+            id=6,
+            name='v6',
+            label='variable label 6',
+            values={
+                '-9': 'invalid1',
+                '-8': 'invalid2',
+                '999999': 'invalid3',
             }
         )
 

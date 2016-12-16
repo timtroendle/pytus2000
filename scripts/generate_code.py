@@ -16,6 +16,7 @@ VARIABLE_NAME_FIELD = 'Variable = '
 VARIABLE_LABEL_FIELD = 'Variable label = '
 VALUE_FIELD = 'Value = '
 VALUE_LABEL_FIELD = 'Label = '
+CHAR_PRECEDING_NUMBER = 'N'
 
 Variable = namedtuple('Variable', ['id', 'name', 'label', 'values'])
 
@@ -27,6 +28,33 @@ FILE_MAPPING = {
     Path('weight_diary_person_UKDA_Data_Dictionary.txt'): Path('weightdiary.py'),
     Path('worksheet_data_3_UKDA_Data_Dictionary.txt'): Path('worksheet.py')
 }
+
+CHARACTER_MAPPING = OrderedDict([ # these characters in labels will be mapped to their counterpart
+    (' – ', '_'),
+    ('–', '_'),
+    ('-', '_'),
+    (' ', '_'),
+    ("'", '_'),
+    ('.', '_'),
+    (',', '_'),
+    ('%', 'percent'),
+    ('?', ''),
+    ('(S)', ''),
+    ('(', ''),
+    (')', ''),
+    ('£', 'GBP'),
+    (':', ''),
+    (';', ''),
+    ('+', 'plus'),
+    ('&', 'and'),
+    ('/', ''),
+    ('<', 'smaller'),
+    ('<=', 'smallerequal'),
+    ('>', 'greater'),
+    ('>=', 'greaterequal'),
+    ('=', 'equal'),
+    ('@', 'AT')
+])
 
 
 class _PathToDataDictsParamType(click.ParamType):
@@ -102,15 +130,21 @@ def write_data_dictionary(variables, path_to_file):
         'class Variable(Enum):'
     ]
     for i, variable in enumerate(variables):
-        lines.append('    {} = {}'.format(variable.name.upper(), i + 1))
+        lines.append('    {} = {}'.format(_convert_name(variable.name), i + 1))
     variable_cache = []
-    for variable in filter(_variable_has_values, variables):
+    for variable in filter(_variable_is_usable, filter(_variable_has_values, variables)):
         lines.append('')
         lines.append('')
         if len(_variables_with_same_value(variable_cache)(variable)) == 0:
             lines.append('class {}(Enum):'.format(_convert_name(variable.name)))
+            label_cache = []
             for value, label in variable.values.items():
+                if label in label_cache:
+                    new_label = label + '2'
+                    print('Duplicate label: {} renamed to {}'.format(label, new_label))
+                    label = new_label
                 lines.append("    {} = '{}'".format(_convert_name(label.upper()), value))
+                label_cache.append(label)
             variable_cache.append(variable)
         else:
             variable_with_same_values = _variables_with_same_value(variable_cache)(variable)[0]
@@ -157,6 +191,12 @@ def _variable_has_values(variable):
     return variable.values is not None
 
 
+def _variable_is_usable(variable):
+    # if there is only one value, it is very likely, that not all values are defined
+    # if there are three values and they do not contain '1', they are likely unusable
+    return len(variable.values) > 1 and (len(variable.values) > 3 or '1' in variable.values.keys())
+
+
 def _variables_with_same_value(reference_variables):
     def _variables_with_same_value(variable):
         return [var for var in reference_variables if var.values == variable.values]
@@ -164,7 +204,11 @@ def _variables_with_same_value(reference_variables):
 
 
 def _convert_name(name):
-    return name.upper().replace(' ', '_')
+    if any(name.startswith(str(i)) for i in range(10)):
+        name = CHAR_PRECEDING_NUMBER + name
+    for invalid_char, valid_str in CHARACTER_MAPPING.items():
+        name = name.replace(invalid_char, valid_str)
+    return name.upper()
 
 
 if __name__ == '__main__':
