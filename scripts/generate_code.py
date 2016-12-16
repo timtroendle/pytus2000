@@ -1,6 +1,11 @@
 from collections import namedtuple, OrderedDict
 from itertools import dropwhile, groupby
+from pathlib import Path
+import os
 
+import click
+
+PATH_FOR_GENERATED_CODE = Path(os.path.abspath(__file__)).parent.parent / 'generated'
 VARIABLE_SECTION_START = 'Pos. = '
 VARIABLE_NAME_FIELD = 'Variable = '
 VARIABLE_LABEL_FIELD = 'Variable label = '
@@ -8,6 +13,24 @@ VALUE_FIELD = 'Value = '
 VALUE_LABEL_FIELD = 'Label = '
 
 Variable = namedtuple('Variable', ['id', 'name', 'label', 'values'])
+
+
+class PathlibParamType(click.ParamType):
+    name = 'Path'
+
+    def convert(self, value, param, ctx):
+        path = Path(value)
+        if not path.exists():
+            self.fail('Path "{}" does not exist.'.format(value))
+        return path
+
+
+@click.command(name='datadict-translator')
+@click.argument('datadict', type=PathlibParamType())
+def generate_code(datadict):
+    PATH_FOR_GENERATED_CODE.mkdir(exist_ok=True)
+    variables = parse_data_dictionary(datadict)
+    write_data_dictionary(variables, PATH_FOR_GENERATED_CODE / 'datadict.py')
 
 
 def parse_data_dictionary(path_to_file):
@@ -79,3 +102,7 @@ def _variable_has_values(variable):
 
 def _convert_name(name):
     return name.upper().replace(' ', '_')
+
+
+if __name__ == '__main__':
+    generate_code()
