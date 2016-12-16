@@ -10,7 +10,7 @@ import os
 
 import click
 
-PATH_FOR_GENERATED_CODE = Path(os.path.abspath(__file__)).parent.parent / 'generated'
+PATH_FOR_GENERATED_CODE = Path(os.path.abspath(__file__)).parent.parent / 'pytus2000' / 'datadicts'
 VARIABLE_SECTION_START = 'Pos. = '
 VARIABLE_NAME_FIELD = 'Variable = '
 VARIABLE_LABEL_FIELD = 'Variable label = '
@@ -19,32 +19,49 @@ VALUE_LABEL_FIELD = 'Label = '
 
 Variable = namedtuple('Variable', ['id', 'name', 'label', 'values'])
 
+FILE_MAPPING = {
+    Path('diary_data_8_episode_UKDA_Data_Dictionary.txt'): Path('diaryepisode.py'),
+    Path('diary_data_8_UKDA_Data_Dictionary.txt'): Path('diary.py'),
+    Path('hhld_data_6_UKDA_Data_Dictionary.txt'): Path('household.py'),
+    Path('Individual_data_5_UKDA_Data_Dictionary.txt'): Path('individual.py'),
+    Path('weight_diary_person_UKDA_Data_Dictionary.txt'): Path('weightdiary.py'),
+    Path('worksheet_data_3_UKDA_Data_Dictionary.txt'): Path('worksheet.py')
+}
 
-class _PathToPlainTextParamType(click.ParamType):
-    name = 'PathToPlainText'
+
+class _PathToDataDictsParamType(click.ParamType):
+    name = 'PathToDataDicts'
 
     def convert(self, value, param, ctx):
         path = Path(value)
         if not path.exists():
             self.fail('Path "{}" does not exist.'.format(value))
-        if path.suffix == '.rtf':
-            self.fail('rtf files cannot be read. Please convert to plain text first.')
+        if any(path / file_path not in path.glob('*') for file_path in FILE_MAPPING.keys()):
+            missing_files = [path / file_path for file_path in FILE_MAPPING.keys()
+                             if path / file_path not in path.glob('*')]
+            self.fail("There are not all necessary files in the folder '{}'.\n \
+                      Missing: {}.".format(path, missing_files))
         return path
 
 
 @click.command(name='datadict-translator')
-@click.argument('datadict', type=_PathToPlainTextParamType())
-def generate_code(datadict):
+@click.argument('datadicts', type=_PathToDataDictsParamType())
+def generate_code(datadicts):
     """Generates PyTUS2000 source code.
 
     \b
     Parameters:
-        datadict:  The file containing the data dictionary to be translated.
-                   Must be in plain text; rtf will fail.
+        datadicts:  The folder containing all data dictionaries to be translated.
+                    Must be in plain text; rtf will fail.
     """
     PATH_FOR_GENERATED_CODE.mkdir(exist_ok=True)
-    variables = parse_data_dictionary(datadict)
-    write_data_dictionary(variables, PATH_FOR_GENERATED_CODE / 'datadict.py')
+    for original, generated in FILE_MAPPING.items():
+        original = datadicts / original
+        generated = PATH_FOR_GENERATED_CODE / generated
+        print('Converting {} to {}...'.format(original, generated))
+        variables = parse_data_dictionary(original)
+        write_data_dictionary(variables, generated)
+    print('All Done.')
 
 
 def parse_data_dictionary(path_to_file):
