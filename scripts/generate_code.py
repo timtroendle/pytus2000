@@ -14,6 +14,7 @@ PATH_FOR_GENERATED_CODE = Path(os.path.abspath(__file__)).parent.parent / 'pytus
 VARIABLE_SECTION_START = 'Pos. = '
 VARIABLE_NAME_FIELD = 'Variable = '
 VARIABLE_LABEL_FIELD = 'Variable label = '
+MISSING_VALUE_FIELD = 'SPSS user missing value = '
 VALUE_FIELD = 'Value = '
 VALUE_LABEL_FIELD = 'Label = '
 CHAR_PRECEDING_NUMBER = 'N'
@@ -160,20 +161,31 @@ def write_data_dictionary(variables, path_to_file):
 def _parse_variable(variable_section):
     variable_section = list(variable_section)
     position, name, label = variable_section[0].split('\t')
+    missing_values = _parse_missing_values(variable_section)
     value_lines = filter(lambda line: line.startswith(VALUE_FIELD), variable_section)
     return Variable(
         id=int(position.split(VARIABLE_SECTION_START)[1]),
         name=name.split(VARIABLE_NAME_FIELD)[1],
         label=label.split(VARIABLE_LABEL_FIELD)[1],
-        values=_parse_variable_values(value_lines)
+        values=_parse_variable_values(value_lines, missing_values)
     )
 
 
-def _parse_variable_values(value_lines):
+def _parse_missing_values(variable_section):
+    if any(line.startswith(MISSING_VALUE_FIELD) for line in variable_section):
+        line = [line for line in variable_section if line.startswith(MISSING_VALUE_FIELD)][0]
+        return (value.strip() for value in line.strip().split(MISSING_VALUE_FIELD)[1].split('and'))
+    else:
+        return []
+
+
+def _parse_variable_values(value_lines, missing_values):
     values = [
         (value.split(VALUE_FIELD)[1], label.split(VALUE_LABEL_FIELD)[1])
         for value, label in (line.split('\t') for line in value_lines)
     ]
+    for i, missing_value in enumerate(missing_values):
+        values.append((missing_value, 'missing{}'.format(i + 1)))
     return OrderedDict(values) if len(values) > 0 else None
 
 

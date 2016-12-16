@@ -15,6 +15,7 @@ class V3(Enum):
     LABEL1 = '0'
     LABEL2 = '1'
     LABEL3 = '2'
+    MISSING1 = '99'
 
 
 class V4(Enum):
@@ -22,6 +23,8 @@ class V4(Enum):
     ATSOME_LABEL = '2.2'
     N1SOME_OTHER_LABEL = '2.3'
     ATSOME_LABEL2 = '2.4'
+    MISSING1 = '-1'
+    MISSING2 = '-9'
 
 
 V5 = V3

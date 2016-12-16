@@ -38,7 +38,8 @@ class TestsParsingTestDataDictionary():
             values={
                 '0': 'label1',
                 '1': 'label2',
-                '2': 'label3'
+                '2': 'label3',
+                '99': 'missing1'
             }
         )
 
@@ -52,7 +53,9 @@ class TestsParsingTestDataDictionary():
                 '1.1': 'label',
                 '2.2': '@some label',
                 '2.3': '1some other label',
-                '2.4': '@some label'
+                '2.4': '@some label',
+                '-1': 'missing1',
+                '-9': 'missing2'
             }
         )
 
@@ -65,7 +68,8 @@ class TestsParsingTestDataDictionary():
             values={
                 '0': 'label1',
                 '1': 'label2',
-                '2': 'label3'
+                '2': 'label3',
+                '99': 'missing1'
             }
         )
 
