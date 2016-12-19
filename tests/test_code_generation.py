@@ -15,6 +15,11 @@ PATH_TO_ORIGINAL_DATA_DICTIONARY = (PATH_TO_DATA / 'mrdoc' / 'allissue' /
                                     'diary_data_8_UKDA_Data_Dictionary.txt')
 PATH_TO_EXPECTED_TEST_DATA_DICTIONARY = PATH_TO_RESOURCES / 'resulting_datadicts.py'
 
+dataset = pytest.mark.skipif(
+    not pytest.config.getoption("--runwithdataset"),
+    reason="need --runwithdataset option to run"
+)
+
 
 class TestsParsingTestDataDictionary():
 
@@ -90,10 +95,7 @@ class TestsParsingTestDataDictionary():
         )
 
 
-@pytest.mark.skipif(
-    not PATH_TO_ORIGINAL_DATA_DICTIONARY.exists(),
-    reason='Original Data Dictionary must exist.'
-)
+@dataset
 class TestsParsingOriginalDataDictionary():
 
     def test_detects_all_variables_in_original(self):
