@@ -7,9 +7,12 @@ import pytest
 sys.path.append('./scripts/')
 from generate_code import Variable, parse_data_dictionary, write_data_dictionary
 
-PATH_TO_RESOURCES = Path(os.path.abspath(__file__)).parent / 'resources'
+PATH_TO_TEST_FOLDER = Path(os.path.abspath(__file__)).parent
+PATH_TO_RESOURCES = PATH_TO_TEST_FOLDER / 'resources'
+PATH_TO_DATA = PATH_TO_TEST_FOLDER.parent / 'data'
 PATH_TO_TEST_DATA_DICTIONARY = PATH_TO_RESOURCES / 'test_data_dictionary.txt'
-PATH_TO_ORIGINAL_DATA_DICTIONARY = PATH_TO_RESOURCES / 'orig_data_dictionary.txt'
+PATH_TO_ORIGINAL_DATA_DICTIONARY = (PATH_TO_DATA / 'mrdoc' / 'allissue' /
+                                    'diary_data_8_UKDA_Data_Dictionary.txt')
 PATH_TO_EXPECTED_TEST_DATA_DICTIONARY = PATH_TO_RESOURCES / 'resulting_datadicts.py'
 
 
