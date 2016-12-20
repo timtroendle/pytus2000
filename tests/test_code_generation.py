@@ -7,17 +7,25 @@ import pytest
 sys.path.append('./scripts/')
 from generate_code import Variable, parse_data_dictionary, write_data_dictionary
 
-PATH_TO_RESOURCES = Path(os.path.abspath(__file__)).parent / 'resources'
+PATH_TO_TEST_FOLDER = Path(os.path.abspath(__file__)).parent
+PATH_TO_RESOURCES = PATH_TO_TEST_FOLDER / 'resources'
+PATH_TO_DATA = PATH_TO_TEST_FOLDER.parent / 'data'
 PATH_TO_TEST_DATA_DICTIONARY = PATH_TO_RESOURCES / 'test_data_dictionary.txt'
-PATH_TO_ORIGINAL_DATA_DICTIONARY = PATH_TO_RESOURCES / 'orig_data_dictionary.txt'
+PATH_TO_ORIGINAL_DATA_DICTIONARY = (PATH_TO_DATA / 'mrdoc' / 'allissue' /
+                                    'diary_data_8_UKDA_Data_Dictionary.txt')
 PATH_TO_EXPECTED_TEST_DATA_DICTIONARY = PATH_TO_RESOURCES / 'resulting_datadicts.py'
+
+dataset = pytest.mark.skipif(
+    not pytest.config.getoption("--runwithdataset"),
+    reason="need --runwithdataset option to run"
+)
 
 
 class TestsParsingTestDataDictionary():
 
     def test_detects_all_variables(self):
         variables = parse_data_dictionary(PATH_TO_TEST_DATA_DICTIONARY)
-        assert len(variables) == 5
+        assert len(variables) == 6
 
     def test_detects_first_variable(self):
         variables = parse_data_dictionary(PATH_TO_TEST_DATA_DICTIONARY)
@@ -26,7 +34,7 @@ class TestsParsingTestDataDictionary():
 
     def test_detects_second_variable(self):
         variables = parse_data_dictionary(PATH_TO_TEST_DATA_DICTIONARY)
-        assert variables[1] == Variable(id=2, name='v2', label='variable label 2',
+        assert variables[1] == Variable(id=2, name='@v2', label='variable label 2',
                                         values=None)
 
     def test_detects_third_variable(self):
@@ -38,7 +46,8 @@ class TestsParsingTestDataDictionary():
             values={
                 '0': 'label1',
                 '1': 'label2',
-                '2': 'label3'
+                '2': 'label3',
+                '99': 'missing1'
             }
         )
 
@@ -49,16 +58,44 @@ class TestsParsingTestDataDictionary():
             name='v4',
             label='variable label 4',
             values={
-                '2.2': 'some label',
-                '2.3': 'some other label'
+                '1.1': 'label',
+                '2.2': '@some label',
+                '2.3': '1some other label',
+                '2.4': '@some label',
+                '-1': 'missing1',
+                '-9': 'missing2'
+            }
+        )
+
+    def test_detects_fifth_variable(self):
+        variables = parse_data_dictionary(PATH_TO_TEST_DATA_DICTIONARY)
+        assert variables[4] == Variable(
+            id=5,
+            name='v5',
+            label='variable label 5',
+            values={
+                '0': 'label1',
+                '1': 'label2',
+                '2': 'label3',
+                '99': 'missing1'
+            }
+        )
+
+    def test_detects_sixth_variable(self):
+        variables = parse_data_dictionary(PATH_TO_TEST_DATA_DICTIONARY)
+        assert variables[5] == Variable(
+            id=6,
+            name='v6',
+            label='variable label 6',
+            values={
+                '-9': 'invalid1',
+                '-8': 'invalid2',
+                '999999': 'invalid3',
             }
         )
 
 
-@pytest.mark.skipif(
-    not PATH_TO_ORIGINAL_DATA_DICTIONARY.exists(),
-    reason='Original Data Dictionary must exist.'
-)
+@dataset
 class TestsParsingOriginalDataDictionary():
 
     def test_detects_all_variables_in_original(self):

@@ -14,8 +14,10 @@ PATH_FOR_GENERATED_CODE = Path(os.path.abspath(__file__)).parent.parent / 'pytus
 VARIABLE_SECTION_START = 'Pos. = '
 VARIABLE_NAME_FIELD = 'Variable = '
 VARIABLE_LABEL_FIELD = 'Variable label = '
+MISSING_VALUE_FIELD = 'SPSS user missing value = '
 VALUE_FIELD = 'Value = '
 VALUE_LABEL_FIELD = 'Label = '
+CHAR_PRECEDING_NUMBER = 'N'
 
 Variable = namedtuple('Variable', ['id', 'name', 'label', 'values'])
 
@@ -27,6 +29,33 @@ FILE_MAPPING = {
     Path('weight_diary_person_UKDA_Data_Dictionary.txt'): Path('weightdiary.py'),
     Path('worksheet_data_3_UKDA_Data_Dictionary.txt'): Path('worksheet.py')
 }
+
+CHARACTER_MAPPING = OrderedDict([ # these characters in labels will be mapped to their counterpart
+    (' – ', '_'),
+    ('–', '_'),
+    ('-', '_'),
+    (' ', '_'),
+    ("'", '_'),
+    ('.', '_'),
+    (',', '_'),
+    ('%', 'percent'),
+    ('?', ''),
+    ('(S)', ''),
+    ('(', ''),
+    (')', ''),
+    ('£', 'GBP'),
+    (':', ''),
+    (';', ''),
+    ('+', 'plus'),
+    ('&', 'and'),
+    ('/', ''),
+    ('<', 'smaller'),
+    ('<=', 'smallerequal'),
+    ('>', 'greater'),
+    ('>=', 'greaterequal'),
+    ('=', 'equal'),
+    ('@', 'AT')
+])
 
 
 class _PathToDataDictsParamType(click.ParamType):
@@ -102,15 +131,21 @@ def write_data_dictionary(variables, path_to_file):
         'class Variable(Enum):'
     ]
     for i, variable in enumerate(variables):
-        lines.append('    {} = {}'.format(variable.name.upper(), i + 1))
+        lines.append('    {} = {}'.format(_convert_name(variable.name), i + 1))
     variable_cache = []
-    for variable in filter(_variable_has_values, variables):
+    for variable in filter(_variable_is_usable, filter(_variable_has_values, variables)):
         lines.append('')
         lines.append('')
         if len(_variables_with_same_value(variable_cache)(variable)) == 0:
             lines.append('class {}(Enum):'.format(_convert_name(variable.name)))
+            label_cache = []
             for value, label in variable.values.items():
+                if label in label_cache:
+                    new_label = label + '2'
+                    print('Duplicate label: {} renamed to {}'.format(label, new_label))
+                    label = new_label
                 lines.append("    {} = '{}'".format(_convert_name(label.upper()), value))
+                label_cache.append(label)
             variable_cache.append(variable)
         else:
             variable_with_same_values = _variables_with_same_value(variable_cache)(variable)[0]
@@ -126,20 +161,31 @@ def write_data_dictionary(variables, path_to_file):
 def _parse_variable(variable_section):
     variable_section = list(variable_section)
     position, name, label = variable_section[0].split('\t')
+    missing_values = _parse_missing_values(variable_section)
     value_lines = filter(lambda line: line.startswith(VALUE_FIELD), variable_section)
     return Variable(
         id=int(position.split(VARIABLE_SECTION_START)[1]),
         name=name.split(VARIABLE_NAME_FIELD)[1],
         label=label.split(VARIABLE_LABEL_FIELD)[1],
-        values=_parse_variable_values(value_lines)
+        values=_parse_variable_values(value_lines, missing_values)
     )
 
 
-def _parse_variable_values(value_lines):
+def _parse_missing_values(variable_section):
+    if any(line.startswith(MISSING_VALUE_FIELD) for line in variable_section):
+        line = [line for line in variable_section if line.startswith(MISSING_VALUE_FIELD)][0]
+        return (value.strip() for value in line.strip().split(MISSING_VALUE_FIELD)[1].split('and'))
+    else:
+        return []
+
+
+def _parse_variable_values(value_lines, missing_values):
     values = [
         (value.split(VALUE_FIELD)[1], label.split(VALUE_LABEL_FIELD)[1])
         for value, label in (line.split('\t') for line in value_lines)
     ]
+    for i, missing_value in enumerate(missing_values):
+        values.append((missing_value, 'missing{}'.format(i + 1)))
     return OrderedDict(values) if len(values) > 0 else None
 
 
@@ -157,6 +203,12 @@ def _variable_has_values(variable):
     return variable.values is not None
 
 
+def _variable_is_usable(variable):
+    # if there is only one value, it is very likely, that not all values are defined
+    # if there are three values and they do not contain '1', they are likely unusable
+    return len(variable.values) > 1 and (len(variable.values) > 3 or '1' in variable.values.keys())
+
+
 def _variables_with_same_value(reference_variables):
     def _variables_with_same_value(variable):
         return [var for var in reference_variables if var.values == variable.values]
@@ -164,7 +216,11 @@ def _variables_with_same_value(reference_variables):
 
 
 def _convert_name(name):
-    return name.upper().replace(' ', '_')
+    if any(name.startswith(str(i)) for i in range(10)):
+        name = CHAR_PRECEDING_NUMBER + name
+    for invalid_char, valid_str in CHARACTER_MAPPING.items():
+        name = name.replace(invalid_char, valid_str)
+    return name.upper()
 
 
 if __name__ == '__main__':

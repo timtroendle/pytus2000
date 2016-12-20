@@ -14,13 +14,15 @@ Pos. = 1	Variable = v1	Variable label = variable label 1
 
 This variable is  numeric, the SPSS measurement level is scale.
 
-Pos. = 2	Variable = v2	Variable label = variable label 2
+Pos. = 2	Variable = @v2	Variable label = variable label 2
 
 This variable is  numeric, the SPSS measurement level is scale.
 
 Pos. = 3	Variable = v3	Variable label = variable label 3
 
 This variable is  numeric, the SPSS measurement level is ordinal.
+
+SPSS user missing value = 99
 
 Value label information for v3
 
@@ -34,15 +36,23 @@ Pos. = 4	Variable = v4	Variable label = variable label 4
 
 This variable is  numeric, the SPSS measurement level is ordinal.
 
+SPSS user missing value = -1 and -9
+
 Value label information for v4
 
-Value = 2.2	Label = some label
+Value = 1.1	Label = label
 
-Value = 2.3	Label = some other label
+Value = 2.2	Label = @some label
+
+Value = 2.3	Label = 1some other label
+
+Value = 2.4	Label = @some label
 
 Pos. = 5	Variable = v5	Variable label = variable label 5
 
 This variable is  numeric, the SPSS measurement level is ordinal.
+
+SPSS user missing value = 99
 
 Value label information for v3
 
@@ -51,3 +61,15 @@ Value = 0	Label = label1
 Value = 1	Label = label2
 
 Value = 2	Label = label3
+
+Pos. = 6	Variable = v6	Variable label = variable label 6
+
+This variable is  numeric, the SPSS measurement level is ordinal.
+
+Value label information for v3
+
+Value = -9	Label = invalid1
+
+Value = -8	Label = invalid2
+
+Value = 999999	Label = invalid3

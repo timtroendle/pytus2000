@@ -2,7 +2,7 @@
 
 from setuptools import setup, find_packages
 
-exec(open('pytus2000/__init__.py').read())
+exec(open('pytus2000/version.py').read())
 
 setup(
     name='pytus2000',
@@ -13,7 +13,7 @@ setup(
     url='https://www.github.com/timtroendle/pytus2000',
     packages=find_packages(exclude=['tests*', 'scripts*']),
     include_package_data=True,
-    install_requires=[],
+    install_requires=[pandas],
     classifiers=[
         'Environment :: Console',
         'Intended Audience :: Science/Research',
