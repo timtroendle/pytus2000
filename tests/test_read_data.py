@@ -3,8 +3,8 @@ from pathlib import Path
 
 import pytest
 
-import pytus2000
-from pytus2000.datadicts.diary import DMONTH, ACT1_001
+import pytus2000 as tus
+from pytus2000 import diary
 
 
 SKIP_CONDITION = not pytest.config.getoption("--runwithdataset")
@@ -27,9 +27,9 @@ def path_to_diary_file(request):
 class TestDiaryFile():
 
     def test_read_month(self, path_to_diary_file):
-        data = pytus2000.read_diary_file(path_to_diary_file)
-        assert data.DMONTH.dtype == DMONTH
+        data = tus.read_diary_file(path_to_diary_file)
+        assert data.DMONTH.dtype == diary.DMONTH
 
     def test_read_activities(self, path_to_diary_file):
-        data = pytus2000.read_diary_file(path_to_diary_file)
-        assert data.ACT1_001.dtype == ACT1_001
+        data = tus.read_diary_file(path_to_diary_file)
+        assert data.ACT1_001.dtype == diary.ACT1_001
