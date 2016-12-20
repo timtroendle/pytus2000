@@ -4,11 +4,19 @@ from .datadicts import diary
 
 
 def read_diary_file(path_to_file):
+    """Reads in the tab-delimited diary data set.
+
+    Parameters:
+        * path_to_file: either a string or a pathlib.Path
+
+    Returns:
+        The diary data set as a pandas DataFrame.
+    """
     return pd.read_csv(
         path_to_file,
         delimiter='\t',
         converters=_column_name_to_type_mapping(diary),
-        low_memory=False # some columns seem to have mixed types
+        low_memory=False # some columns have mixed types
     )
 
 

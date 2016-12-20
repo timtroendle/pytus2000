@@ -2,9 +2,32 @@
 
 A library for working with the [UK Time Use Study 2000](https://discover.ukdataservice.ac.uk/catalogue?sn=4504) data.
 
-## Installation
+## User Guide
 
-### From source code
+`pytus2000` comes with classes for all categorial data in the UK Time Use Study and hence provides you with metadata and tab-completion while you are working with the data set. As an example consider you want to filter out all adult diary data. Instead of a query like this:
+
+```python
+adults = diary_data[diary_data.DTYPE == 1]
+```
+
+`pytus2000` lets you write:
+
+```python
+adults = diary_data[diary_data.DTYPE == diary.DTYPE.ADULT_DIARY]
+```
+
+Start by reading in a tab-delimited data set as a pandas DataFrame like so:
+
+```python
+import pytus2000 as tus
+from pytus2000 import diary
+
+diary_data = tus.read_diary_file('<path_to_file>')
+```
+
+### Installation
+
+#### From source code
 
 1) Download [tab delimited data set](https://discover.ukdataservice.ac.uk/catalogue?sn=4504).
 
