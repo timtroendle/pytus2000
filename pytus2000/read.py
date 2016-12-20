@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 from .datadicts import diary
 
@@ -12,12 +13,24 @@ def read_diary_file(path_to_file):
     Returns:
         The diary data set as a pandas DataFrame.
     """
-    return pd.read_csv(
+    converter_map = _column_name_to_type_mapping(diary)
+    data = pd.read_csv(
         path_to_file,
         delimiter='\t',
-        converters=_column_name_to_type_mapping(diary),
+        converters=converter_map,
         low_memory=False # some columns have mixed types
     )
+    category_map = {}
+    for col in filter(_columns_name_in_dataframe(data), converter_map.keys()):
+        category_map[col] = 'category'
+    data = data.astype(category_map, copy=False)
+    return data
+
+
+def _columns_name_in_dataframe(dataframe):
+    def _columns_name_in_dataframe(column_name):
+        return column_name in dataframe
+    return _columns_name_in_dataframe
 
 
 def _column_name_to_type_mapping(module):
@@ -34,13 +47,13 @@ def _column_name_to_type_mapping(module):
 def _enum_converter(enumcls):
     def enum_converter(value):
         if value == ' ':
-            return None
+            return np.nan
         else:
             try:
                 value = enumcls(value)
             except ValueError as ve:
-                print(ve)
-                return None
+                print("{}. Will be replaced by np.nan.".format(ve))
+                return np.nan
             else:
                 return value
     return enum_converter

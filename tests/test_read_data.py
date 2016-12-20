@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 
 import pytest
+import pandas
 
 import pytus2000 as tus
 from pytus2000 import diary
@@ -28,8 +29,8 @@ class TestDiaryFile():
 
     def test_read_month(self, path_to_diary_file):
         data = tus.read_diary_file(path_to_diary_file)
-        assert data.DMONTH.dtype == diary.DMONTH
+        assert isinstance(data.DMONTH.dtype, pandas.types.dtypes.CategoricalDtype)
 
     def test_read_activities(self, path_to_diary_file):
         data = tus.read_diary_file(path_to_diary_file)
-        assert data.ACT1_001.dtype == diary.ACT1_001
+        assert isinstance(data.ACT1_001.dtype, pandas.types.dtypes.CategoricalDtype)
