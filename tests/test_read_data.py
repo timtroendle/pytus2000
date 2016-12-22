@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 import pytest
-import pandas
+import pandas as pd
 
 import pytus2000 as tus
 from pytus2000 import diary
@@ -29,8 +29,12 @@ class TestDiaryFile():
 
     def test_read_month(self, path_to_diary_file):
         data = tus.read_diary_file(path_to_diary_file)
-        assert isinstance(data.DMONTH.dtype, pandas.types.dtypes.CategoricalDtype)
+        assert isinstance(data.DMONTH.dtype, pd.types.dtypes.CategoricalDtype)
 
     def test_read_activities(self, path_to_diary_file):
         data = tus.read_diary_file(path_to_diary_file)
-        assert isinstance(data.ACT1_001.dtype, pandas.types.dtypes.CategoricalDtype)
+        assert isinstance(data.ACT1_001.dtype, pd.types.dtypes.CategoricalDtype)
+
+    def test_multi_index(self, path_to_diary_file):
+        data = tus.read_diary_file(path_to_diary_file)
+        assert data.index.names == ['SN1', 'SN2', 'SN3', 'SN4']
