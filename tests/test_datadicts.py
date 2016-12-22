@@ -82,3 +82,7 @@ def test_variable_value_enums_are_ordered_by_value(variable_value_enums):
     for enum in variable_value_enums:
         members = [member for member in enum]
         assert (members[0] < members[-1]) == (members[0].value < members[-1].value)
+
+
+def test_diary_module_has_activity_enum():
+    assert len([act for act in diary.Activity]) > 0

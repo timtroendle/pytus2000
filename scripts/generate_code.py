@@ -19,7 +19,27 @@ VALUE_FIELD = 'Value = '
 VALUE_LABEL_FIELD = 'Label = '
 CHAR_PRECEDING_NUMBER = 'N'
 
-Variable = namedtuple('Variable', ['pos', 'name', 'label', 'values'])
+Variable = namedtuple('Variable', ['pos', 'name', 'label', 'value_set'])
+Variable.__doc__ = """\
+A variable definition.
+
+Parameters:
+    * pos: the position in the data dict (int)
+    * name: the name of the variable as a string
+    * label: the label of the variable as a string
+    * value_set: the set of all possible values. Can be either:
+            * None, for example for unrestricted integers or floating points
+            * name of a value set defined somewhere else as a string
+            * a value set
+"""
+ValueSet = namedtuple('ValueSet', ['name', 'values'])
+ValueSet.__doc__ = """\
+Describing a domain on which variables can be defined.
+
+Parameters:
+    * name: the name of the value set as a string
+    * values: all values as a map from value to label of that value
+"""
 
 FILE_MAPPING = {
     Path('diary_data_8_episode_UKDA_Data_Dictionary.txt'): Path('diaryepisode.py'),
@@ -116,6 +136,32 @@ def parse_data_dictionary(path_to_file):
     return variables
 
 
+def consolidate_value_sets(variables):
+    counter = 1
+    value_sets = []
+    new_variables = []
+    from collections import defaultdict
+    res = defaultdict(list)
+    for variable in variables:
+        res[variable.value_set.values].append(variable)
+    for values, variable in res:
+        if len(variables) > 1 and values is not None:
+            new_value_set = ValueSet(name='ValueSet{}'.format(counter), values=values)
+            value_sets.append(value_set)
+            counter += 1
+            for variable in variable_with_value_set:
+                variables.append(Variable(
+                    pos=variable.pos,
+                    name=variable.name,
+                    label=variable.label,
+                    value_set=new_value_set.name
+                ))
+        else:
+            for variable in variable_with_value_set:
+                new_variables.append(variable)
+    return value_sets, new_variables
+
+
 def write_data_dictionary(variables, path_to_file):
     """Writes data dictionary variables to Python source code.
 
@@ -143,7 +189,7 @@ def write_data_dictionary(variables, path_to_file):
         if len(_variables_with_same_value(variable_cache)(variable)) == 0:
             lines.append('class {}(OrderedEnum):'.format(_convert_name(variable.name)))
             label_cache = []
-            for value, label in variable.values.items():
+            for value, label in variable.value_set.values.items():
                 if label in label_cache:
                     new_label = label + '2'
                     print('Duplicate label: {} renamed to {}'.format(label, new_label))
@@ -167,11 +213,12 @@ def _parse_variable(variable_section):
     position, name, label = variable_section[0].split('\t')
     missing_values = _parse_missing_values(variable_section)
     value_lines = filter(lambda line: line.startswith(VALUE_FIELD), variable_section)
+    variable_name = name.split(VARIABLE_NAME_FIELD)[1]
     return Variable(
         pos=int(position.split(VARIABLE_SECTION_START)[1]),
-        name=name.split(VARIABLE_NAME_FIELD)[1],
+        name=variable_name,
         label=label.split(VARIABLE_LABEL_FIELD)[1],
-        values=_parse_variable_values(value_lines, missing_values)
+        value_set=_parse_variable_value_set(variable_name, value_lines, missing_values)
     )
 
 
@@ -183,14 +230,14 @@ def _parse_missing_values(variable_section):
         return []
 
 
-def _parse_variable_values(value_lines, missing_values):
+def _parse_variable_value_set(variable_name, value_lines, missing_values):
     values = [
         (value.split(VALUE_FIELD)[1], label.split(VALUE_LABEL_FIELD)[1])
         for value, label in (line.split('\t') for line in value_lines)
     ]
     for i, missing_value in enumerate(missing_values):
         values.append((missing_value, 'missing{}'.format(i + 1)))
-    return OrderedDict(values) if len(values) > 0 else None
+    return ValueSet(variable_name, OrderedDict(values)) if len(values) > 0 else None
 
 
 def _variable_section_generator(lines):
@@ -204,18 +251,18 @@ def _variable_section_generator(lines):
 
 
 def _variable_has_values(variable):
-    return variable.values is not None
+    return variable.value_set is not None
 
 
 def _variable_is_usable(variable):
     # if there is only one value, it is very likely, that not all values are defined
     # if there are three values and they do not contain '1', they are likely unusable
-    return len(variable.values) > 1 and (len(variable.values) > 3 or '1' in variable.values.keys())
+    return len(variable.value_set.values) > 1 and (len(variable.value_set.values) > 3 or '1' in variable.value_set.values.keys())
 
 
 def _variables_with_same_value(reference_variables):
     def _variables_with_same_value(variable):
-        return [var for var in reference_variables if var.values == variable.values]
+        return [var for var in reference_variables if var.value_set == variable.value_set]
     return _variables_with_same_value
 
 
