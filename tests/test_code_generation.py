@@ -29,18 +29,18 @@ class TestsParsingTestDataDictionary():
 
     def test_detects_first_variable(self):
         variables = parse_data_dictionary(PATH_TO_TEST_DATA_DICTIONARY)
-        assert variables[0] == Variable(id=1, name='v1', label='variable label 1',
+        assert variables[0] == Variable(pos=1, name='v1', label='variable label 1',
                                         values=None)
 
     def test_detects_second_variable(self):
         variables = parse_data_dictionary(PATH_TO_TEST_DATA_DICTIONARY)
-        assert variables[1] == Variable(id=2, name='@v2', label='variable label 2',
+        assert variables[1] == Variable(pos=2, name='@v2', label='variable label 2',
                                         values=None)
 
     def test_detects_third_variable(self):
         variables = parse_data_dictionary(PATH_TO_TEST_DATA_DICTIONARY)
         assert variables[2] == Variable(
-            id=3,
+            pos=3,
             name='v3',
             label='variable label 3',
             values={
@@ -54,7 +54,7 @@ class TestsParsingTestDataDictionary():
     def test_detects_forth_variable(self):
         variables = parse_data_dictionary(PATH_TO_TEST_DATA_DICTIONARY)
         assert variables[3] == Variable(
-            id=4,
+            pos=4,
             name='v4',
             label='variable label 4',
             values={
@@ -70,7 +70,7 @@ class TestsParsingTestDataDictionary():
     def test_detects_fifth_variable(self):
         variables = parse_data_dictionary(PATH_TO_TEST_DATA_DICTIONARY)
         assert variables[4] == Variable(
-            id=5,
+            pos=5,
             name='v5',
             label='variable label 5',
             values={
@@ -84,7 +84,7 @@ class TestsParsingTestDataDictionary():
     def test_detects_sixth_variable(self):
         variables = parse_data_dictionary(PATH_TO_TEST_DATA_DICTIONARY)
         assert variables[5] == Variable(
-            id=6,
+            pos=6,
             name='v6',
             label='variable label 6',
             values={

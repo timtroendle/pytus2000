@@ -19,7 +19,7 @@ VALUE_FIELD = 'Value = '
 VALUE_LABEL_FIELD = 'Label = '
 CHAR_PRECEDING_NUMBER = 'N'
 
-Variable = namedtuple('Variable', ['id', 'name', 'label', 'values'])
+Variable = namedtuple('Variable', ['pos', 'name', 'label', 'values'])
 
 FILE_MAPPING = {
     Path('diary_data_8_episode_UKDA_Data_Dictionary.txt'): Path('diaryepisode.py'),
@@ -127,11 +127,15 @@ def write_data_dictionary(variables, path_to_file):
         '"""This is a auto-generated data dictionary file of the UK Time Use Study 2000."""',
         'from enum import Enum',
         '',
+        'from pytus2000.datadicts import VariableEnum',
         '',
-        'class Variable(Enum):'
+        '',
+        'class Variable(VariableEnum):'
     ]
-    for i, variable in enumerate(variables):
-        lines.append('    {} = {}'.format(_convert_name(variable.name), i + 1))
+    for variable in variables:
+        lines.append('    {} = ({}, "{}")'.format(_convert_name(variable.name),
+                                                  variable.pos,
+                                                  variable.label.replace('"', "'")))
     variable_cache = []
     for variable in filter(_variable_is_usable, filter(_variable_has_values, variables)):
         lines.append('')
@@ -164,7 +168,7 @@ def _parse_variable(variable_section):
     missing_values = _parse_missing_values(variable_section)
     value_lines = filter(lambda line: line.startswith(VALUE_FIELD), variable_section)
     return Variable(
-        id=int(position.split(VARIABLE_SECTION_START)[1]),
+        pos=int(position.split(VARIABLE_SECTION_START)[1]),
         name=name.split(VARIABLE_NAME_FIELD)[1],
         label=label.split(VARIABLE_LABEL_FIELD)[1],
         values=_parse_variable_values(value_lines, missing_values)

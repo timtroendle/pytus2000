@@ -1,14 +1,16 @@
 """This is a auto-generated data dictionary file of the UK Time Use Study 2000."""
 from enum import Enum
 
+from pytus2000.datadicts import VariableEnum
 
-class Variable(Enum):
-    V1 = 1
-    ATV2 = 2
-    V3 = 3
-    V4 = 4
-    V5 = 5
-    V6 = 6
+
+class Variable(VariableEnum):
+    V1 = (1, "variable label 1")
+    ATV2 = (2, "variable label 2")
+    V3 = (3, "variable label 3")
+    V4 = (4, "variable label 4")
+    V5 = (5, "variable label 5")
+    V6 = (6, "variable label 6")
 
 
 class V3(Enum):
