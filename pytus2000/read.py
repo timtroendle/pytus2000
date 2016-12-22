@@ -18,6 +18,7 @@ def read_diary_file(path_to_file):
         path_to_file,
         delimiter='\t',
         converters=converter_map,
+        index_col=[0, 1, 2, 3],
         low_memory=False # some columns have mixed types
     )
     category_map = {}
