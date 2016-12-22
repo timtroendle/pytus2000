@@ -127,7 +127,7 @@ def write_data_dictionary(variables, path_to_file):
         '"""This is a auto-generated data dictionary file of the UK Time Use Study 2000."""',
         'from enum import Enum',
         '',
-        'from pytus2000.datadicts import VariableEnum',
+        'from pytus2000.datadicts import OrderedEnum, VariableEnum',
         '',
         '',
         'class Variable(VariableEnum):'
@@ -141,7 +141,7 @@ def write_data_dictionary(variables, path_to_file):
         lines.append('')
         lines.append('')
         if len(_variables_with_same_value(variable_cache)(variable)) == 0:
-            lines.append('class {}(Enum):'.format(_convert_name(variable.name)))
+            lines.append('class {}(OrderedEnum):'.format(_convert_name(variable.name)))
             label_cache = []
             for value, label in variable.values.items():
                 if label in label_cache:
