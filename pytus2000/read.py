@@ -1,11 +1,11 @@
 import pandas as pd
 import numpy as np
 
-from .datadicts import diary
+from .datadicts import diary, individual
 
 
 def read_diary_file(path_to_file):
-    """Reads in the tab-delimited diary data set.
+    """Reads the tab-delimited diary data set.
 
     Parameters:
         * path_to_file: either a string or a pathlib.Path
@@ -19,6 +19,30 @@ def read_diary_file(path_to_file):
         delimiter='\t',
         converters=converter_map,
         index_col=[0, 1, 2, 3],
+        low_memory=False # some columns have mixed types
+    )
+    category_map = {}
+    for col in filter(_columns_name_in_dataframe(data), converter_map.keys()):
+        category_map[col] = 'category'
+    data = data.astype(category_map, copy=False)
+    return data
+
+
+def read_individual_file(path_to_file):
+    """Reads the tab-delimited individual data set.
+
+    Parameters:
+        * path_to_file: either a string or a pathlib.Path
+
+    Returns:
+        The individual data set as a pandas DataFrame.
+    """
+    converter_map = _column_name_to_type_mapping(individual)
+    data = pd.read_csv(
+        path_to_file,
+        delimiter='\t',
+        converters=converter_map,
+        index_col=[0, 1, 2],
         low_memory=False # some columns have mixed types
     )
     category_map = {}
