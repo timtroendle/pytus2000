@@ -17,7 +17,7 @@ class V3(OrderedEnum):
     LABEL1 = '0'
     LABEL2 = '1'
     LABEL3 = '2'
-    MISSING1 = '99'
+    SOME_MISSING_VALUE = '99'
 
 
 class V4(OrderedEnum):

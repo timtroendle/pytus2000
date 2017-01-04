@@ -49,7 +49,7 @@ class TestsParsingTestDataDictionary():
                 '0': 'label1',
                 '1': 'label2',
                 '2': 'label3',
-                '99': 'missing1'
+                '99': 'some missing value'
             }
         )
 
@@ -79,7 +79,7 @@ class TestsParsingTestDataDictionary():
                 '0': 'label1',
                 '1': 'label2',
                 '2': 'label3',
-                '99': 'missing1'
+                '99': 'some missing value'
             }
         )
 

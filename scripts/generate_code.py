@@ -199,7 +199,8 @@ def _parse_variable_values(value_lines, missing_values):
         for value, label in (line.split('\t') for line in value_lines)
     ]
     for i, missing_value in enumerate(missing_values):
-        values.append((missing_value, 'missing{}'.format(i + 1)))
+        if missing_value not in [value for value, label in values]:
+            values.append((missing_value, 'missing{}'.format(i + 1)))
     return OrderedDict(values) if len(values) > 0 else None
 
 
