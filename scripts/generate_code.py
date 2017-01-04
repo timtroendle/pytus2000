@@ -14,7 +14,7 @@ PATH_FOR_GENERATED_CODE = Path(os.path.abspath(__file__)).parent.parent / 'pytus
 VARIABLE_SECTION_START = 'Pos. = '
 VARIABLE_NAME_FIELD = 'Variable = '
 VARIABLE_LABEL_FIELD = 'Variable label = '
-MISSING_VALUE_FIELD = 'SPSS user missing value = '
+MISSING_VALUE_FIELD = 'SPSS user missing value'
 VALUE_FIELD = 'Value = '
 VALUE_LABEL_FIELD = 'Label = '
 CHAR_PRECEDING_NUMBER = 'N'
@@ -179,7 +179,16 @@ def _parse_variable(variable_section):
 def _parse_missing_values(variable_section):
     if any(line.startswith(MISSING_VALUE_FIELD) for line in variable_section):
         line = [line for line in variable_section if line.startswith(MISSING_VALUE_FIELD)][0]
-        return (value.strip() for value in line.strip().split(MISSING_VALUE_FIELD)[1].split('and'))
+        values = [value.strip() for value in
+                  line.strip().split(MISSING_VALUE_FIELD)[1].split('=')[1].split('and')]
+        if any('thru' in value for value in values): # special case of the worksheet data dict
+            values = []
+            for value in values:
+                if 'thru' in value:
+                    values.append(v.strip() for v in value.split('thru'))
+                else:
+                    values.append(value)
+        return values
     else:
         return []
 
