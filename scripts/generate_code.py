@@ -18,6 +18,7 @@ MISSING_VALUE_FIELD = 'SPSS user missing value = '
 VALUE_FIELD = 'Value = '
 VALUE_LABEL_FIELD = 'Label = '
 CHAR_PRECEDING_NUMBER = 'N'
+POSITIVE_VALUES_INDICATING_MISSING_VALUES = [99, 999, 9999, 99999, 999999, 11, 12, 15, 16]
 
 Variable = namedtuple('Variable', ['pos', 'name', 'label', 'values'])
 
@@ -208,9 +209,12 @@ def _variable_has_values(variable):
 
 
 def _variable_is_usable(variable):
-    # if there is only one value, it is very likely, that not all values are defined
-    # if there are three values and they do not contain '1', they are likely unusable
-    return len(variable.values) > 1 and (len(variable.values) > 3 or '1' in variable.values.keys())
+    # there must be at least two values which aren't used to indicate missing values
+    return len(list(filter(_valid_variable_value, variable.values.keys()))) > 1
+
+
+def _valid_variable_value(value):
+    return float(value) >= 0 and float(value) not in POSITIVE_VALUES_INDICATING_MISSING_VALUES
 
 
 def _variables_with_same_value(reference_variables):
