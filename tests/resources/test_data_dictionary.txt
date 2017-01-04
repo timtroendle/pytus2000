@@ -36,7 +36,7 @@ Pos. = 4	Variable = v4	Variable label = variable label 4
 
 This variable is  numeric, the SPSS measurement level is ordinal.
 
-SPSS user missing value = -1 and -9
+SPSS user missing values = -1 and -9
 
 Value label information for v4
 
