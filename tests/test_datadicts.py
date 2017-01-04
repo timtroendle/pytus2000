@@ -91,3 +91,9 @@ def test_regression_number_enums_in_diary_datadict():
     number_enums = len([member for member in diary.__dict__.values()
                         if inspect.isclass(member) and issubclass(member, Enum)])
     assert number_enums == 2394
+
+
+def test_regression_number_enums_in_individual_datadict():
+    number_enums = len([member for member in individual.__dict__.values()
+                        if inspect.isclass(member) and issubclass(member, Enum)])
+    assert number_enums == 1425
