@@ -13,19 +13,11 @@ def read_diary_file(path_to_file):
     Returns:
         The diary data set as a pandas DataFrame.
     """
-    converter_map = _column_name_to_type_mapping(diary)
-    data = pd.read_csv(
-        path_to_file,
-        delimiter='\t',
-        converters=converter_map,
-        index_col=[0, 1, 2, 3],
-        low_memory=False # some columns have mixed types
+    return _read_file(
+        module=diary,
+        index_columns=4,
+        path_to_file=path_to_file
     )
-    category_map = {}
-    for col in filter(_columns_name_in_dataframe(data), converter_map.keys()):
-        category_map[col] = 'category'
-    data = data.astype(category_map, copy=False)
-    return data
 
 
 def read_individual_file(path_to_file):
@@ -37,12 +29,20 @@ def read_individual_file(path_to_file):
     Returns:
         The individual data set as a pandas DataFrame.
     """
-    converter_map = _column_name_to_type_mapping(individual)
+    return _read_file(
+        module=individual,
+        index_columns=3,
+        path_to_file=path_to_file
+    )
+
+
+def _read_file(module, index_columns, path_to_file):
+    converter_map = _column_name_to_type_mapping(module)
     data = pd.read_csv(
         path_to_file,
         delimiter='\t',
         converters=converter_map,
-        index_col=[0, 1, 2],
+        index_col=list(range(index_columns)),
         low_memory=False # some columns have mixed types
     )
     category_map = {}
