@@ -32,6 +32,8 @@ Value = 1	Label = label2
 
 Value = 2	Label = label3
 
+Value = 99	Label = some missing value
+
 Pos. = 4	Variable = v4	Variable label = variable label 4
 
 This variable is  numeric, the SPSS measurement level is ordinal.
@@ -61,6 +63,8 @@ Value = 0	Label = label1
 Value = 1	Label = label2
 
 Value = 2	Label = label3
+
+Value = 99	Label = some missing value
 
 Pos. = 6	Variable = v6	Variable label = variable label 6
 

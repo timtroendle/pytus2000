@@ -1,4 +1,6 @@
+from datetime import datetime
 from pathlib import Path
+import importlib
 import sys
 import os
 
@@ -11,8 +13,8 @@ PATH_TO_TEST_FOLDER = Path(os.path.abspath(__file__)).parent
 PATH_TO_RESOURCES = PATH_TO_TEST_FOLDER / 'resources'
 PATH_TO_DATA = PATH_TO_TEST_FOLDER.parent / 'data'
 PATH_TO_TEST_DATA_DICTIONARY = PATH_TO_RESOURCES / 'test_data_dictionary.txt'
-PATH_TO_ORIGINAL_DATA_DICTIONARY = (PATH_TO_DATA / 'mrdoc' / 'allissue' /
-                                    'diary_data_8_UKDA_Data_Dictionary.txt')
+PATH_TO_ORIGINAL_DIARY_DATA_DICTIONARY = (PATH_TO_DATA / 'mrdoc' / 'allissue' /
+                                          'diary_data_8_UKDA_Data_Dictionary.txt')
 PATH_TO_EXPECTED_TEST_DATA_DICTIONARY = PATH_TO_RESOURCES / 'resulting_datadicts.py'
 
 dataset = pytest.mark.skipif(
@@ -47,7 +49,7 @@ class TestsParsingTestDataDictionary():
                 '0': 'label1',
                 '1': 'label2',
                 '2': 'label3',
-                '99': 'missing1'
+                '99': 'some missing value'
             }
         )
 
@@ -77,7 +79,7 @@ class TestsParsingTestDataDictionary():
                 '0': 'label1',
                 '1': 'label2',
                 '2': 'label3',
-                '99': 'missing1'
+                '99': 'some missing value'
             }
         )
 
@@ -96,23 +98,160 @@ class TestsParsingTestDataDictionary():
 
 
 @dataset
-class TestsParsingOriginalDataDictionary():
+class TestsParsingOriginalDiaryDataDictionary():
 
     def test_detects_all_variables_in_original(self):
-        variables = parse_data_dictionary(PATH_TO_ORIGINAL_DATA_DICTIONARY)
+        variables = parse_data_dictionary(PATH_TO_ORIGINAL_DIARY_DATA_DICTIONARY)
         assert len(variables) == 3164
 
 
 class TestGeneratingPythonDatadicts():
 
-    def test_creates_data_dict_correctly(self, tmpdir):
+    def load_file_as_module(self, path_to_module):
+        file_loader = importlib.machinery.SourceFileLoader(
+            'module{}'.format(int(datetime.now().timestamp() * 1000000)),
+            path_to_module.absolute().as_posix()
+        )
+        return file_loader.load_module()
+
+    @pytest.fixture
+    def tmpmodule(self, tmpdir):
         tmpdir_path = Path(str(tmpdir))
-        path_to_file = tmpdir_path / 'generated_file.py'
+        return tmpdir_path / 'generated_file.py'
+
+    @pytest.fixture
+    def variable(self):
+        return Variable(
+            pos=1,
+            name='eins',
+            label='some label',
+            values={
+                '0': 'label1',
+                '1': 'label2',
+                '2': 'label3',
+                '99': 'missing1'
+            }
+        )
+
+    @pytest.fixture
+    def variable_without_values(self):
+        return Variable(
+            pos=2,
+            name='zwei',
+            label='some label',
+            values=None
+        )
+
+    @pytest.fixture(params=[
+        {'1': 'one value'},
+        {'0': 'a value'},
+        {'11': 'one value', '1': 'another value'},
+        {'12': 'one value', '1': 'another value'},
+        {'15': 'one value', '1': 'another value'},
+        {'16': 'one value', '1': 'another value'},
+        {'1': 'one value', '-99': 'missing1'},
+        {'1': 'one value', '-99': 'missing1', '99': 'missing2'},
+    ])
+    def variable_with_one_valid_value(self, request):
+        return Variable(
+            pos=3,
+            name='drei',
+            label='some label',
+            values=request.param
+        )
+
+    @pytest.fixture(params=[
+        {'1': 'one value', '2': 'another value'},
+        {'0': 'one value', '2': 'another value'},
+        {'1': 'one value', '2': 'another value', '-1': 'missing1'},
+        {'1': 'one value', '2': 'another value', '-8': 'missing1', '99': 'missing2'},
+    ])
+    def variable_with_two_valid_values(self, request):
+        return Variable(
+            pos=4,
+            name='vier',
+            label='some label',
+            values=request.param
+        )
+
+    @pytest.fixture(params=[
+        {'-9': 'missing1'},
+        {'11': 'some', '12': 'other', '15': 'more', '16': 'even more'},
+        {'-9': 'missing1', '-8': 'missing2', '99': 'missing3', '999999': 'missing4'},
+        {'-1': 'missing1', '-8': 'missing2', '-9': 'missing3', '-88': 'missing4', '-99': 'missing5'}
+    ])
+    def variable_without_valid_values(self, request):
+        return Variable(
+            pos=5,
+            name='fuenf',
+            label='some label',
+            values=request.param
+        )
+
+    def test_creates_variable_enum(self, tmpmodule, variable):
+        write_data_dictionary(
+            variables=[variable],
+            path_to_file=tmpmodule
+        )
+        module = self.load_file_as_module(tmpmodule)
+        assert 'Variable' in module.__dict__
+
+    def test_creates_value_enum_for_variable_with_values(self, tmpmodule, variable):
+        write_data_dictionary(
+            variables=[variable],
+            path_to_file=tmpmodule
+        )
+        module = self.load_file_as_module(tmpmodule)
+        assert 'EINS' in module.__dict__
+
+    def test_doesnt_create_enum_for_variable_without_values(self, tmpmodule,
+                                                            variable_without_values):
+        write_data_dictionary(
+            variables=[variable_without_values],
+            path_to_file=tmpmodule
+        )
+        module = self.load_file_as_module(tmpmodule)
+        assert module.Variable['ZWEI'] # variable exists!
+        assert 'ZWEI' not in module.__dict__
+
+    def test_doesnt_create_enum_for_variable_with_one_valid_value(self, tmpmodule,
+                                                                  variable_with_one_valid_value):
+        write_data_dictionary(
+            variables=[variable_with_one_valid_value],
+            path_to_file=tmpmodule
+        )
+        module = self.load_file_as_module(tmpmodule)
+        assert module.Variable['DREI'] # variable exists!
+        assert 'DREI' not in module.__dict__
+
+    def test_creates_enum_for_variable_with_two_valid_values(self, tmpmodule,
+                                                             variable_with_two_valid_values):
+        write_data_dictionary(
+            variables=[variable_with_two_valid_values],
+            path_to_file=tmpmodule
+        )
+        module = self.load_file_as_module(tmpmodule)
+        assert 'VIER' in module.__dict__
+
+    def test_doesnt_create_enum_for_variable_without_valid_values(
+        self,
+        tmpmodule,
+        variable_without_valid_values
+    ):
+        write_data_dictionary(
+            variables=[variable_without_valid_values],
+            path_to_file=tmpmodule
+        )
+        module = self.load_file_as_module(tmpmodule)
+        assert module.Variable['FUENF'] # variable exists!
+        assert 'FUENF' not in module.__dict__
+
+    def test_creates_test_data_dict_correctly(self, tmpmodule):
         write_data_dictionary(
             variables=parse_data_dictionary(PATH_TO_TEST_DATA_DICTIONARY),
-            path_to_file=path_to_file
+            path_to_file=tmpmodule
         )
-        self.assert_equal_files(path_to_file, PATH_TO_EXPECTED_TEST_DATA_DICTIONARY)
+        self.assert_equal_files(tmpmodule, PATH_TO_EXPECTED_TEST_DATA_DICTIONARY)
 
     def assert_equal_files(self, path_to_file, path_to_expected_file):
         with path_to_file.open('r') as file1, path_to_expected_file.open('r') as file2:
