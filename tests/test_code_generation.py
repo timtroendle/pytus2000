@@ -176,6 +176,7 @@ class TestGeneratingPythonDatadicts():
 
     @pytest.fixture(params=[
         {'-9': 'missing1'},
+        {'11': 'some', '12': 'other', '15': 'more', '16': 'even more'},
         {'-9': 'missing1', '-8': 'missing2', '99': 'missing3', '999999': 'missing4'},
         {'-1': 'missing1', '-8': 'missing2', '-9': 'missing3', '-88': 'missing4', '-99': 'missing5'}
     ])
@@ -187,9 +188,9 @@ class TestGeneratingPythonDatadicts():
             values=request.param
         )
 
-    def test_creates_variable_enum(self, tmpmodule, variable_without_values):
+    def test_creates_variable_enum(self, tmpmodule, variable):
         write_data_dictionary(
-            variables=[variable_without_values],
+            variables=[variable],
             path_to_file=tmpmodule
         )
         module = self.load_file_as_module(tmpmodule)
