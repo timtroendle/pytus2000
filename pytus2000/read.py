@@ -77,7 +77,7 @@ def _enum_converter(enumcls):
             try:
                 value = enumcls(value)
             except ValueError as ve:
-                print("{}. Will be replaced by np.nan.".format(ve))
+                print(f"{ve}. Will be replaced by np.nan.")
                 return np.nan
             else:
                 return value
