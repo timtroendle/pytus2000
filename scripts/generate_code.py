@@ -65,12 +65,12 @@ class _PathToDataDictsParamType(click.ParamType):
     def convert(self, value, param, ctx):
         path = Path(value)
         if not path.exists():
-            self.fail('Path "{}" does not exist.'.format(value))
+            self.fail(f'Path "{value}" does not exist.')
         if any(path / file_path not in path.glob('*') for file_path in FILE_MAPPING.keys()):
             missing_files = [path / file_path for file_path in FILE_MAPPING.keys()
                              if path / file_path not in path.glob('*')]
-            self.fail("There are not all necessary files in the folder '{}'.\n \
-                      Missing: {}.".format(path, missing_files))
+            self.fail(f"There are not all necessary files in the folder '{path}'.\n \
+                      Missing: {missing_files}.")
         return path
 
 
@@ -88,7 +88,7 @@ def generate_code(datadicts):
     for original, generated in FILE_MAPPING.items():
         original = datadicts / original
         generated = PATH_FOR_GENERATED_CODE / generated
-        print('Converting {} to {}...'.format(original, generated))
+        print(f'Converting {original} to {generated}...')
         variables = parse_data_dictionary(original)
         write_data_dictionary(variables, generated)
     print('All Done.')
@@ -147,7 +147,7 @@ def write_data_dictionary(variables, path_to_file):
             for value, label in variable.values.items():
                 if label in label_cache:
                     new_label = label + '2'
-                    print('Duplicate label: {} renamed to {}'.format(label, new_label))
+                    print(f'Duplicate label: {label} renamed to {new_label}')
                     label = new_label
                 lines.append("    {} = '{}'".format(_convert_name(label.upper()), value))
                 label_cache.append(label)
@@ -200,7 +200,7 @@ def _parse_variable_values(value_lines, missing_values):
     ]
     for i, missing_value in enumerate(missing_values):
         if missing_value not in [value for value, label in values]:
-            values.append((missing_value, 'missing{}'.format(i + 1)))
+            values.append((missing_value, f'missing{i + 1}'))
     return OrderedDict(values) if len(values) > 0 else None
 
 
