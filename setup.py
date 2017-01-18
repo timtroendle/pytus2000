@@ -13,7 +13,7 @@ setup(
     url='https://www.github.com/timtroendle/pytus2000',
     packages=find_packages(exclude=['tests*', 'scripts*']),
     include_package_data=True,
-    install_requires=[pandas],
+    install_requires=['pandas'],
     classifiers=[
         'Environment :: Console',
         'Intended Audience :: Science/Research',
