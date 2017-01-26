@@ -49,6 +49,10 @@ class TestDiaryFile():
         data = tus.read_diary_file(path_to_diary_file)
         assert data.index.names == ['SN1', 'SN2', 'SN3', 'SN4']
 
+    def test_number_columns(self, path_to_diary_file):
+        data = tus.read_diary_file(path_to_diary_file)
+        assert len(data.columns) == len([var for var in diary.Variable]) - 4
+
 
 class TestIndividualFile():
 
@@ -63,3 +67,7 @@ class TestIndividualFile():
     def test_read_question1(self, path_to_individual_file):
         data = tus.read_individual_file(path_to_individual_file)
         assert isinstance(data.Q1A.dtype, pd.types.dtypes.CategoricalDtype)
+
+    def test_number_columns(self, path_to_individual_file):
+        data = tus.read_individual_file(path_to_individual_file)
+        assert len(data.columns) == len([var for var in individual.Variable]) - 3
