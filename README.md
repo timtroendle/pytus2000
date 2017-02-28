@@ -22,6 +22,7 @@ Start by reading in a tab-delimited data set as a pandas DataFrame like so:
 import pytus2000 as tus
 from pytus2000 import diary
 
+tus.set_cache_location('<path_to_cachedir>') # caches the pandas dataframe, next read will be fast
 diary_data = tus.read_diary_file('<path_to_file>')
 ```
 
