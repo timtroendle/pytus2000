@@ -2,8 +2,13 @@ import pandas as pd
 import numpy as np
 
 from .datadicts import diary, individual
+from .cache import cached
+
+_DIARY_DATA_CACHE_ID = 'diary-data'
+_INDIVIDUAL_DATA_CACHE_ID = 'individual-data'
 
 
+@cached(_DIARY_DATA_CACHE_ID)
 def read_diary_file(path_to_file):
     """Reads the tab-delimited diary data set.
 
@@ -20,6 +25,7 @@ def read_diary_file(path_to_file):
     )
 
 
+@cached(_INDIVIDUAL_DATA_CACHE_ID)
 def read_individual_file(path_to_file):
     """Reads the tab-delimited individual data set.
 
