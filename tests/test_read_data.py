@@ -5,7 +5,7 @@ import pytest
 import pandas as pd
 
 import pytus2000 as tus
-from pytus2000 import diary, individual
+from pytus2000 import diary, individual, cache
 
 
 SKIP_CONDITION = not pytest.config.getoption("--runwithdataset")
@@ -35,6 +35,12 @@ def path_to_individual_file(request):
     return request.param
 
 
+@pytest.fixture
+def cachedir(tmpdir):
+    yield tmpdir
+    tus.set_cache_location(None)
+
+
 class TestDiaryFile():
 
     def test_read_month(self, path_to_diary_file):
@@ -52,6 +58,19 @@ class TestDiaryFile():
     def test_number_columns(self, path_to_diary_file):
         data = tus.read_diary_file(path_to_diary_file)
         assert len(data.columns) == len([var for var in diary.Variable]) - 4
+
+    def test_writes_cache(self, cachedir, path_to_diary_file):
+        tus.set_cache_location(str(cachedir))
+        data = tus.read_diary_file(path_to_diary_file)
+        assert (Path(str(cachedir)) / cache._CACHE_ROOT_PATH /
+                tus.read._DIARY_DATA_CACHE_ID).exists()
+
+    def test_does_not_write_to_cache_if_switched_off(self, cachedir, path_to_diary_file):
+        tus.set_cache_location(str(cachedir))
+        tus.set_cache_location(None)
+        data = tus.read_diary_file(path_to_diary_file)
+        assert not (Path(str(cachedir)) / cache._CACHE_ROOT_PATH /
+                    tus.read._DIARY_DATA_CACHE_ID).exists()
 
 
 class TestIndividualFile():
@@ -71,3 +90,16 @@ class TestIndividualFile():
     def test_number_columns(self, path_to_individual_file):
         data = tus.read_individual_file(path_to_individual_file)
         assert len(data.columns) == len([var for var in individual.Variable]) - 3
+
+    def test_writes_cache(self, cachedir, path_to_individual_file):
+        tus.set_cache_location(str(cachedir))
+        data = tus.read_individual_file(path_to_individual_file)
+        assert (Path(str(cachedir)) / cache._CACHE_ROOT_PATH /
+                tus.read._INDIVIDUAL_DATA_CACHE_ID).exists()
+
+    def test_does_not_write_to_cache_if_switched_off(self, cachedir, path_to_individual_file):
+        tus.set_cache_location(str(cachedir))
+        tus.set_cache_location(None)
+        data = tus.read_individual_file(path_to_individual_file)
+        assert not (Path(str(cachedir)) / cache._CACHE_ROOT_PATH /
+                    tus.read._INDIVIDUAL_DATA_CACHE_ID).exists()
