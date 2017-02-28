@@ -3,8 +3,10 @@ import numpy as np
 
 from .datadicts import diary, individual
 from .cache import cached
+from .transform import transform_diary_data_to_timeseries
 
 _DIARY_DATA_CACHE_ID = 'diary-data'
+_DIARY_DATA_TIME_SERIES_CACHE_ID = 'diary-data-time-series'
 _INDIVIDUAL_DATA_CACHE_ID = 'individual-data'
 
 
@@ -40,6 +42,21 @@ def read_individual_file(path_to_file):
         index_columns=3,
         path_to_file=path_to_file
     )
+
+
+@cached(_DIARY_DATA_TIME_SERIES_CACHE_ID)
+def read_diary_file_as_timeseries(path_to_file):
+    """Reads the time-varying columns of the tab-delimited diary data set as a timeseries.
+
+    Parameters:
+        * path_to_file: either a string or a pathlib.Path
+
+    Returns:
+        The time varying columns of the diary data set as a pandas DataFrame time series.
+    """
+    diary_data = read_diary_file(path_to_file)
+
+    return transform_diary_data_to_timeseries(diary_data)
 
 
 def _read_file(module, index_columns, path_to_file):
