@@ -21,8 +21,7 @@ def read_diary_file(path_to_file):
     return _read_file(
         module=diary,
         index_columns=4,
-        path_to_file=path_to_file,
-        cache_id=_DIARY_DATA_CACHE_ID
+        path_to_file=path_to_file
     )
 
 
@@ -39,12 +38,11 @@ def read_individual_file(path_to_file):
     return _read_file(
         module=individual,
         index_columns=3,
-        path_to_file=path_to_file,
-        cache_id=_INDIVIDUAL_DATA_CACHE_ID
+        path_to_file=path_to_file
     )
 
 
-def _read_file(module, index_columns, path_to_file, cache_id):
+def _read_file(module, index_columns, path_to_file):
     converter_map = _column_name_to_type_mapping(module)
     data = pd.read_csv(
         path_to_file,
