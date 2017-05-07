@@ -2,6 +2,9 @@
 *.pyc
 build/
 dist/
+generated/
 __pycache__
 *.egg-info
 .cache/
+tests/resources/orig_data_dictionary.txt
+data/
