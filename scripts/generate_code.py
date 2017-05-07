@@ -97,7 +97,7 @@ def generate_code(datadicts):
 def parse_data_dictionary(path_to_file):
     """Parses a data dictionary file from the study.
 
-    This function can't handle with the rtf files as provided in the study. They have to
+    This function can't handle with the rtf files as provided in the survey. They have to
     be converted to plain text before.
 
     Parameters:

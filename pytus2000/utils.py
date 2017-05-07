@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 
 def time_mapper(time_interval):
-    """Maps the time interval as given in the study to datetime.time.
+    """Maps the time interval as given in the survey to datetime.time.
 
     e.g. '001' -> datetime.time(4, 00)
     e.g. '144' -> datetime.time(3, 50)

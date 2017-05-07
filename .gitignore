@@ -8,11 +8,3 @@ __pycache__
 .cache/
 tests/resources/orig_data_dictionary.txt
 data/
-
-# auto generated datadicts
-pytus2000/datadicts/diary.py
-pytus2000/datadicts/diaryepisode.py
-pytus2000/datadicts/household.py
-pytus2000/datadicts/individual.py
-pytus2000/datadicts/weightdiary.py
-pytus2000/datadicts/worksheet.py
