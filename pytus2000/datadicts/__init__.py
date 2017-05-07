@@ -1,5 +1,5 @@
 """This subpackage contains all data dictionaries."""
-# The Python source code gets auto-generated and this package is intentially empty.
+# The Python source code in this package other than this file has been auto-generated.
 from enum import Enum
 
 
