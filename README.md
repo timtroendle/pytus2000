@@ -30,7 +30,7 @@ diary_data = tus.read_diary_file('<path_to_file>')
 
 #### From GitHub
 
-`pip install git+git://github.com/riccardoscalco/Pykov@master`
+`pip install git+git://github.com/timtroendle/pytus2000@master`
 
 ## Developer Guide
 
