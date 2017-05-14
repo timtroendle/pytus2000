@@ -1,5 +1,7 @@
 # PyTUS2000
 
+[![DOI](https://zenodo.org/badge/76587025.svg)](https://zenodo.org/badge/latestdoi/76587025)
+
 A library for working with the [UK Time Use Survey 2000](http://doi.org/10.5255/UKDA-SN-4504-1) data.
 
 ## User Guide
